@@ -1,0 +1,66 @@
+# Importando SQLite e criando conexão
+import sqlite3
+
+# Conectando ao banco de dados
+con = sqlite3.connect("transparencia_saude.db")
+print("Conexão com o banco de dados aberta!")
+
+# Criando a tabela
+con.execute("""
+CREATE TABLE IF NOT EXISTS clientes (
+    id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    id_atendimento INTEGER AUTOINCREMENT,
+    andamento TEXT DEFAULT '--',
+    custo REAL NOT NULL
+)
+""")
+con.commit()
+print("Tabela criada com sucesso!") 
+
+# Inserindo registros no banco de dados
+nome = input("Digite o nome do cliente: ")
+andamento = input("Digite o andamento: ") or "--"
+custo = float(input("Digite o custo do atendimento: "))
+
+con.execute("""INSERT INTO clientes (nome, andamento, custo)
+VALUES (?, ?, ?)""", (nome, andamento, custo))
+con.commit()
+print("Cliente inserido com sucesso!")
+
+# Consultando todos os registros
+consulta = con.execute("SELECT * FROM clientes")
+clientes = consulta.fetchall()
+
+# Exibindo os registros
+print("Registros no banco de dados:")
+for cliente in clientes:
+    print(cliente)
+
+
+# Atualizando um registro
+id_cliente = int(input("Digite o ID do cliente a ser atualizado: "))
+novo_nome = input("Digite o novo nome do cliente: ")
+novo_andamento = input("Digite o novo andamento: ")
+novo_custo = float(input("Digite o novo custo: "))
+
+con.execute("""
+UPDATE clientes
+SET nome = ?, andamento = ?, custo = ?
+WHERE id_cliente = ?
+""", (novo_nome, novo_andamento, novo_custo, id_cliente))
+con.commit()
+print("Registro atualizado com sucesso!")
+
+
+# Excluindo um registro
+id_cliente = int(input("Digite o ID do cliente a ser excluído: "))
+
+con.execute("DELETE FROM clientes WHERE id_cliente = ?", (id_cliente,))
+con.commit()
+print("Registro excluído com sucesso!")
+
+
+# Fechando a conexão com o banco de dados
+con.close()
+print("Conexão com o banco de dados encerrada!")
